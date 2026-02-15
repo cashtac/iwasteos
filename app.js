@@ -1,5 +1,5 @@
 /* ================================================================
-   iWaste v0.2 — Stabilized Demo Engine + Score System
+   iWaste v0.3 — Dual Panel: Food + Waste side-by-side
    Pure vanilla JS. Zero dependencies.
    ================================================================ */
 (function () {
@@ -19,10 +19,11 @@
     tier: 'Beginner'
   };
 
-  var _requestId = 0;
-  var _stepTimer = null;
-  var _isAnalyzing = false;
-  var _currentMode = 'food';
+  /* Per-panel state */
+  var _panels = {
+    food: { requestId: 0, stepTimer: null, analyzing: false },
+    waste: { requestId: 0, stepTimer: null, analyzing: false }
+  };
 
   /* =============================================================
      GEMINI API CONFIG
@@ -54,7 +55,6 @@
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
   function calculateEcoScore(food) {
-    var wasteNum = parseInt(food.impact) || 100;
     var risk = food.wasteRiskClass === 'high' ? 25 : food.wasteRiskClass === 'medium' ? 12 : 4;
     return clamp(food.ecoScore - Math.floor(risk * 0.1), 0, 100);
   }
@@ -87,7 +87,6 @@
     saveState();
     renderOverlay();
 
-    // Behavioral messages
     if (appState.totalScans === 3) showToast("Habit forming: you're building sustainable behavior.");
     if (appState.totalScans === 5) {
       var pct = clamp(Math.round((appState.ecoScoreAvg - 60) * 0.8), 0, 25);
@@ -104,7 +103,7 @@
   }
 
   /* =============================================================
-     3. MOCK DATA
+     3. MOCK DATA (fallback)
      ============================================================= */
   var FoodPool = [
     { detected: 'Grilled Chicken & Rice', ecoScore: 72, wasteRisk: 'Medium', wasteRiskClass: 'medium', impact: '124g wasted — 0.3 kg CO₂e', recommendation: 'Consider smaller portions next time. Most waste came from the rice.' },
@@ -126,10 +125,10 @@
   var _wasteIdx = 0;
 
   /* =============================================================
-     4. ASYNC AI SIMULATION
+     4. GEMINI API CALLS
      ============================================================= */
   function fetchFoodAnalysis() {
-    var dataUrl = $('scan-preview').src;
+    var dataUrl = $('food-preview').src;
     var base64 = dataUrl.split(',')[1];
     var mimeMatch = dataUrl.match(/^data:(image\/\w+);/);
     var mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
@@ -164,10 +163,8 @@
       })
       .then(function (data) {
         var text = data.candidates[0].content.parts[0].text;
-        // Strip markdown code fences if present
         text = text.replace(/```json\s*/i, '').replace(/```\s*$/i, '').trim();
         var parsed = JSON.parse(text);
-        // Ensure required fields with defaults
         return {
           detected: parsed.detected || 'Unknown Item',
           ecoScore: parseInt(parsed.ecoScore) || 50,
@@ -179,8 +176,7 @@
       })
       .catch(function (err) {
         console.error('Gemini analysis failed:', err);
-        showToast('AI analysis failed. Please try again.');
-        // Return fallback mock data so the UI doesn't break
+        showToast('AI analysis failed — using demo data.');
         var d = FoodPool[_foodIdx % FoodPool.length];
         _foodIdx++;
         return d;
@@ -188,7 +184,7 @@
   }
 
   function fetchWasteClassification() {
-    var dataUrl = $('scan-preview').src;
+    var dataUrl = $('waste-preview').src;
     var base64 = dataUrl.split(',')[1];
     var mimeMatch = dataUrl.match(/^data:(image\/\w+);/);
     var mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
@@ -238,7 +234,7 @@
       })
       .catch(function (err) {
         console.error('Gemini waste classification failed:', err);
-        showToast('AI classification failed. Please try again.');
+        showToast('AI classification failed — using demo data.');
         var d = WastePool[_wasteIdx % WastePool.length];
         _wasteIdx++;
         return d;
@@ -260,109 +256,106 @@
   function $(id) { return document.getElementById(id); }
 
   /* =============================================================
-     6. CORE — setMode / resetScanState / setLoading
+     6. PER-PANEL: reset / setLoading / onFile
      ============================================================= */
-  function setMode(mode) {
-    if (_isAnalyzing) {
-      // Abort in-flight analysis
-      _requestId++;
-      _isAnalyzing = false;
-      if (_stepTimer) { clearInterval(_stepTimer); _stepTimer = null; }
-    }
-    _currentMode = mode;
-    window.Scanner.mode = mode;
-    resetScanState();
-    $('tab-food').classList.toggle('active', mode === 'food');
-    $('tab-waste').classList.toggle('active', mode === 'waste');
-    $('demo-title-text').textContent =
-      mode === 'food' ? 'Food Mode — Scan Your Plate' : 'Waste Mode — Classify Your Trash';
+  function resetPanel(mode) {
+    var p = _panels[mode];
+    if (p.stepTimer) { clearInterval(p.stepTimer); p.stepTimer = null; }
+    if (p.analyzing) { p.requestId++; p.analyzing = false; }
+    $(mode + '-loading').classList.remove('active');
+    $(mode + '-results').classList.remove('active');
+    $(mode + '-upload-zone').style.display = '';
+    $(mode + '-preview').style.display = 'none';
+    $(mode + '-analyze').style.display = 'none';
+    $(mode + '-analyze').disabled = false;
+    $(mode + '-file').value = '';
+    $(mode + '-result-body').innerHTML = '';
   }
 
-  function resetScanState() {
-    if (_stepTimer) { clearInterval(_stepTimer); _stepTimer = null; }
-    $('scan-loading').classList.remove('active');
-    $('scan-results').classList.remove('active');
-    $('scan-upload-zone').style.display = '';
-    $('scan-preview').style.display = 'none';
-    $('scan-analyze').style.display = 'none';
-    $('scan-analyze').disabled = false;
-    $('scan-file').value = '';
-    $('scan-result-body').innerHTML = '';
-  }
-
-  function setLoading(on) {
+  function setPanelLoading(mode, on) {
     if (on) {
-      $('scan-upload-zone').style.display = 'none';
-      $('scan-analyze').style.display = 'none';
-      $('scan-preview').style.display = 'none';
-      $('scan-loading').classList.add('active');
+      $(mode + '-upload-zone').style.display = 'none';
+      $(mode + '-analyze').style.display = 'none';
+      $(mode + '-preview').style.display = 'none';
+      $(mode + '-loading').classList.add('active');
     } else {
-      $('scan-loading').classList.remove('active');
+      $(mode + '-loading').classList.remove('active');
     }
+  }
+
+  function onPanelFile(mode, e) {
+    var f = e.target.files[0];
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      $(mode + '-preview').src = ev.target.result;
+      $(mode + '-preview').style.display = 'block';
+      $(mode + '-upload-zone').style.display = 'none';
+      $(mode + '-analyze').style.display = 'block';
+    };
+    reader.readAsDataURL(f);
   }
 
   /* =============================================================
-     7. CORE — startAnalysis / completeAnalysis
+     7. PER-PANEL: startAnalysis
      ============================================================= */
-  function startAnalysis() {
-    // Guard: no file selected
-    var preview = $('scan-preview');
+  function startPanelAnalysis(mode) {
+    var p = _panels[mode];
+    var preview = $(mode + '-preview');
     if (!preview.src || preview.style.display === 'none') return;
+    if (p.analyzing) return;
+    p.analyzing = true;
 
-    // Guard: already analyzing
-    if (_isAnalyzing) return;
-    _isAnalyzing = true;
-
-    var btn = $('scan-analyze');
+    var btn = $(mode + '-analyze');
     btn.disabled = true;
+    var myId = ++p.requestId;
 
-    // Capture request token
-    var myId = ++_requestId;
-
-    setLoading(true);
+    setPanelLoading(mode, true);
 
     // Step labels
-    var steps = _currentMode === 'food'
+    var steps = mode === 'food'
       ? ['Identifying food items…', 'Estimating portions…', 'Calculating waste impact…', 'Computing EcoScore…']
       : ['Detecting material type…', 'Analyzing composition…', 'Checking bin rules…', 'Computing confidence…'];
     var si = 0;
-    var sub = $('load-sub');
-    $('load-label').textContent = _currentMode === 'food' ? 'Analyzing with Gemini Vision' : 'Classifying waste item';
+    var sub = $(mode + '-load-sub');
+    $(mode + '-load-label').textContent = mode === 'food' ? 'Analyzing with Gemini Vision' : 'Classifying waste item';
     sub.textContent = steps[0];
-    _stepTimer = setInterval(function () { si++; if (si < steps.length) sub.textContent = steps[si]; }, 450);
+    p.stepTimer = setInterval(function () { si++; if (si < steps.length) sub.textContent = steps[si]; }, 450);
 
     // Fetch
-    var p = _currentMode === 'food' ? fetchFoodAnalysis() : fetchWasteClassification();
-    p.then(function (result) {
-      // Abort check — ignore stale results
-      if (myId !== _requestId) return;
-      completeAnalysis(result);
+    var fetchFn = mode === 'food' ? fetchFoodAnalysis : fetchWasteClassification;
+    fetchFn().then(function (result) {
+      if (myId !== p.requestId) return;
+      completePanelAnalysis(mode, result);
     });
   }
 
-  function completeAnalysis(result) {
-    if (_stepTimer) { clearInterval(_stepTimer); _stepTimer = null; }
-    _isAnalyzing = false;
-    setLoading(false);
-    $('scan-analyze').disabled = false;
+  function completePanelAnalysis(mode, result) {
+    var p = _panels[mode];
+    if (p.stepTimer) { clearInterval(p.stepTimer); p.stepTimer = null; }
+    p.analyzing = false;
+    setPanelLoading(mode, false);
+    $(mode + '-analyze').disabled = false;
 
     // Score
-    var eco = _currentMode === 'food' ? calculateEcoScore(result) : 0;
-    var pts = calculatePoints(_currentMode, result, eco);
-    updateAggregates(_currentMode, eco, pts);
+    var eco = mode === 'food' ? calculateEcoScore(result) : 0;
+    var pts = calculatePoints(mode, result, eco);
+    updateAggregates(mode, eco, pts);
 
     // Render
-    $('scan-result-body').innerHTML =
-      _currentMode === 'food' ? renderFood(result) : renderWaste(result);
-    $('scan-results').classList.add('active');
+    $(mode + '-result-body').innerHTML = mode === 'food' ? renderFood(result) : renderWaste(result);
+    $(mode + '-results').classList.add('active');
 
     setTimeout(function () {
-      var ring = $('eco-fill');
-      if (ring) ring.style.strokeDashoffset = 314 - (result.ecoScore / 100) * 314;
-      var numEl = $('eco-num');
-      if (numEl) animateNum(numEl, 0, result.ecoScore, 900);
-      var conf = $('conf-fill');
-      if (conf) conf.style.width = result.confidence + '%';
+      if (mode === 'food') {
+        var ring = $('eco-fill');
+        if (ring) ring.style.strokeDashoffset = 314 - (result.ecoScore / 100) * 314;
+        var numEl = $('eco-num');
+        if (numEl) animateNum(numEl, 0, result.ecoScore, 900);
+      } else {
+        var conf = $('conf-fill');
+        if (conf) conf.style.width = result.confidence + '%';
+      }
     }, 60);
   }
 
@@ -411,23 +404,7 @@
   }
 
   /* =============================================================
-     10. FILE HANDLER
-     ============================================================= */
-  function onFileChange(e) {
-    var f = e.target.files[0];
-    if (!f) return;
-    var reader = new FileReader();
-    reader.onload = function (ev) {
-      $('scan-preview').src = ev.target.result;
-      $('scan-preview').style.display = 'block';
-      $('scan-upload-zone').style.display = 'none';
-      $('scan-analyze').style.display = 'block';
-    };
-    reader.readAsDataURL(f);
-  }
-
-  /* =============================================================
-     11. SCROLL EFFECTS
+     10. SCROLL EFFECTS
      ============================================================= */
   function initScrollFx() {
     if ('IntersectionObserver' in window) {
@@ -448,33 +425,28 @@
   }
 
   /* =============================================================
-     12. INIT
+     11. INIT
      ============================================================= */
   function init() {
     loadState();
 
-    // Mode tabs
-    $('tab-food').addEventListener('click', function () { setMode('food'); });
-    $('tab-waste').addEventListener('click', function () { setMode('waste'); });
+    // Food panel events
+    $('food-file').addEventListener('change', function (e) { onPanelFile('food', e); });
+    $('food-analyze').addEventListener('click', function () { startPanelAnalysis('food'); });
+
+    // Waste panel events
+    $('waste-file').addEventListener('change', function (e) { onPanelFile('waste', e); });
+    $('waste-analyze').addEventListener('click', function () { startPanelAnalysis('waste'); });
 
     // Hero buttons
     $('btn-food').addEventListener('click', function (e) {
       e.preventDefault();
       $('demo').scrollIntoView({ behavior: 'smooth' });
-      setTimeout(function () { setMode('food'); }, 500);
     });
     $('btn-waste').addEventListener('click', function (e) {
       e.preventDefault();
       $('demo').scrollIntoView({ behavior: 'smooth' });
-      setTimeout(function () { setMode('waste'); }, 500);
     });
-
-    // File + Analyze
-    $('scan-file').addEventListener('change', onFileChange);
-    $('scan-analyze').addEventListener('click', startAnalysis);
-
-    // Set initial mode
-    setMode('food');
 
     // Scroll effects
     initScrollFx();
@@ -484,11 +456,10 @@
   }
 
   /* =============================================================
-     13. PUBLIC API
+     12. PUBLIC API
      ============================================================= */
   window.Scanner = {
-    mode: 'food',
-    reset: resetScanState
+    resetPanel: resetPanel
   };
 
   document.addEventListener('DOMContentLoaded', init);

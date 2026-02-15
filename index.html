@@ -123,47 +123,66 @@
       <h2 class="sec-title">See it for yourself</h2>
       <p class="sec-sub">Upload any food or trash photo. The AI simulation returns a real-time analysis card.</p>
 
-      <div class="demo-wrap">
-        <div class="demo-header">
-          <span class="demo-dot"></span>
-          <span class="demo-dot"></span>
-          <span class="demo-dot"></span>
-          <span class="demo-title" id="demo-title-text">Food Mode — Scan Your Plate</span>
-        </div>
-        <div class="demo-body">
-          <div class="demo-tabs">
-            <div class="demo-tab active" id="tab-food">
-              <span class="demo-tab-icon">🍽</span>
-              Food Mode
-            </div>
-            <div class="demo-tab" id="tab-waste">
-              <span class="demo-tab-icon">♻️</span>
-              Waste Mode
-            </div>
+      <div class="demo-dual">
+        <!-- ═══════ FOOD MODE PANEL ═══════ -->
+        <div class="demo-panel">
+          <div class="demo-header">
+            <span class="demo-dot"></span>
+            <span class="demo-dot"></span>
+            <span class="demo-dot"></span>
+            <span class="demo-title">🍽 Food Mode — Scan Your Plate</span>
           </div>
-
-          <div class="demo-split">
-            <!-- Left: Upload / Preview -->
+          <div class="demo-body">
             <div class="demo-left">
-              <img class="upload-preview" id="scan-preview" alt="Preview">
-              <div class="upload-zone" id="scan-upload-zone">
-                <input type="file" accept="image/*" id="scan-file">
+              <img class="upload-preview" id="food-preview" alt="Food Preview">
+              <div class="upload-zone" id="food-upload-zone">
+                <input type="file" accept="image/*" id="food-file">
                 <div class="upload-icon">+</div>
-                <div class="upload-text">Tap to upload a photo</div>
+                <div class="upload-text">Upload food photo</div>
                 <div class="upload-hint">JPG, PNG, HEIC — or drag and drop</div>
               </div>
-              <button class="analyze-btn" id="scan-analyze">Analyze with AI</button>
+              <button class="analyze-btn" id="food-analyze">Analyze with AI</button>
             </div>
-
-            <!-- Right: Loading / Results -->
             <div class="demo-right">
-              <div class="scan-loading" id="scan-loading">
-                <div class="loading-label" id="load-label">Analyzing</div>
-                <div class="loading-sub" id="load-sub">Processing</div>
+              <div class="scan-loading" id="food-loading">
+                <div class="loading-label" id="food-load-label">Analyzing</div>
+                <div class="loading-sub" id="food-load-sub">Processing</div>
               </div>
-              <div class="scan-results" id="scan-results">
-                <div id="scan-result-body"></div>
-                <button class="scan-again" id="scan-again" onclick="Scanner.reset()">Scan Another</button>
+              <div class="scan-results" id="food-results">
+                <div id="food-result-body"></div>
+                <button class="scan-again" onclick="Scanner.resetPanel('food')">Scan Another</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════ WASTE MODE PANEL ═══════ -->
+        <div class="demo-panel">
+          <div class="demo-header">
+            <span class="demo-dot"></span>
+            <span class="demo-dot"></span>
+            <span class="demo-dot"></span>
+            <span class="demo-title">♻️ Waste Mode — Classify Your Trash</span>
+          </div>
+          <div class="demo-body">
+            <div class="demo-left">
+              <img class="upload-preview" id="waste-preview" alt="Waste Preview">
+              <div class="upload-zone" id="waste-upload-zone">
+                <input type="file" accept="image/*" id="waste-file">
+                <div class="upload-icon">+</div>
+                <div class="upload-text">Upload trash photo</div>
+                <div class="upload-hint">JPG, PNG, HEIC — or drag and drop</div>
+              </div>
+              <button class="analyze-btn" id="waste-analyze">Classify with AI</button>
+            </div>
+            <div class="demo-right">
+              <div class="scan-loading" id="waste-loading">
+                <div class="loading-label" id="waste-load-label">Classifying</div>
+                <div class="loading-sub" id="waste-load-sub">Processing</div>
+              </div>
+              <div class="scan-results" id="waste-results">
+                <div id="waste-result-body"></div>
+                <button class="scan-again" onclick="Scanner.resetPanel('waste')">Scan Another</button>
               </div>
             </div>
           </div>
