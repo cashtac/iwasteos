@@ -188,11 +188,61 @@
   }
 
   function fetchWasteClassification() {
-    return new Promise(function (resolve) {
-      var d = WastePool[_wasteIdx % WastePool.length];
-      _wasteIdx++;
-      setTimeout(function () { resolve(d); }, 1500 + Math.random() * 500);
-    });
+    var dataUrl = $('scan-preview').src;
+    var base64 = dataUrl.split(',')[1];
+    var mimeMatch = dataUrl.match(/^data:(image\/\w+);/);
+    var mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+
+    var prompt = 'You are a waste classification AI. Analyze this photo of a waste/trash item. ' +
+      'Return ONLY valid JSON (no markdown, no code fences) with these exact fields: ' +
+      '"detected" (string — name of the item, e.g. "Plastic Bottle"), ' +
+      '"correctBin" (string — "Recycling", "Compost", or "Landfill"), ' +
+      '"binClass" (string — "recycle", "compost", or "landfill"), ' +
+      '"contamRisk" (string — "Low", "Medium", or "High"), ' +
+      '"contamClass" (string — "low", "medium", or "high"), ' +
+      '"confidence" (integer 0-100 — how confident you are in the classification), ' +
+      '"recommendation" (string — one actionable tip about proper disposal of this item). ' +
+      'If the image is not a waste item, still classify it as best you can.';
+
+    var body = {
+      contents: [{
+        parts: [
+          { text: prompt },
+          { inline_data: { mime_type: mimeType, data: base64 } }
+        ]
+      }]
+    };
+
+    return fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('Gemini API error: ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        var text = data.candidates[0].content.parts[0].text;
+        text = text.replace(/```json\s*/i, '').replace(/```\s*$/i, '').trim();
+        var parsed = JSON.parse(text);
+        return {
+          detected: parsed.detected || 'Unknown Item',
+          correctBin: parsed.correctBin || 'Landfill',
+          binClass: parsed.binClass || 'landfill',
+          contamRisk: parsed.contamRisk || 'Medium',
+          contamClass: parsed.contamClass || 'medium',
+          confidence: parseInt(parsed.confidence) || 80,
+          recommendation: parsed.recommendation || 'When in doubt, check local recycling guidelines.'
+        };
+      })
+      .catch(function (err) {
+        console.error('Gemini waste classification failed:', err);
+        showToast('AI classification failed. Please try again.');
+        var d = WastePool[_wasteIdx % WastePool.length];
+        _wasteIdx++;
+        return d;
+      });
   }
 
   /* =============================================================
