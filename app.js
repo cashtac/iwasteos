@@ -2,7 +2,7 @@
    iWaste v0.2 — Stabilized Demo Engine + Score System
    Pure vanilla JS. Zero dependencies.
    ================================================================ */
-(function() {
+(function () {
   'use strict';
 
   /* =============================================================
@@ -23,6 +23,12 @@
   var _stepTimer = null;
   var _isAnalyzing = false;
   var _currentMode = 'food';
+
+  /* =============================================================
+     GEMINI API CONFIG
+     ============================================================= */
+  var GEMINI_API_KEY = 'AIzaSyDE04Im64Pru1h8qqvlLepJ9QUc6HHJLPM';  // Replace with your key from https://aistudio.google.com/apikey
+  var GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
 
   function loadState() {
     try {
@@ -94,26 +100,26 @@
     if (!t) return;
     t.textContent = msg;
     t.classList.add('visible');
-    setTimeout(function() { t.classList.remove('visible'); }, 4000);
+    setTimeout(function () { t.classList.remove('visible'); }, 4000);
   }
 
   /* =============================================================
      3. MOCK DATA
      ============================================================= */
   var FoodPool = [
-    { detected:'Grilled Chicken & Rice', ecoScore:72, wasteRisk:'Medium', wasteRiskClass:'medium', impact:'124g wasted — 0.3 kg CO₂e', recommendation:'Consider smaller portions next time. Most waste came from the rice.' },
-    { detected:'Pepperoni Pizza & Caesar Salad', ecoScore:58, wasteRisk:'High', wasteRiskClass:'high', impact:'198g wasted — 0.5 kg CO₂e', recommendation:'Nearly half the salad was left behind. Try a smaller side.' },
-    { detected:'Beef Tacos & Black Beans', ecoScore:85, wasteRisk:'Low', wasteRiskClass:'low', impact:'72g wasted — 0.2 kg CO₂e', recommendation:'Excellent! Minimal waste. Consider two tacos to save even more.' },
-    { detected:'Salmon Fillet & Quinoa Bowl', ecoScore:81, wasteRisk:'Low', wasteRiskClass:'low', impact:'85g wasted — 0.2 kg CO₂e', recommendation:'The fruit cup had the most waste. Grab a smaller one.' }
+    { detected: 'Grilled Chicken & Rice', ecoScore: 72, wasteRisk: 'Medium', wasteRiskClass: 'medium', impact: '124g wasted — 0.3 kg CO₂e', recommendation: 'Consider smaller portions next time. Most waste came from the rice.' },
+    { detected: 'Pepperoni Pizza & Caesar Salad', ecoScore: 58, wasteRisk: 'High', wasteRiskClass: 'high', impact: '198g wasted — 0.5 kg CO₂e', recommendation: 'Nearly half the salad was left behind. Try a smaller side.' },
+    { detected: 'Beef Tacos & Black Beans', ecoScore: 85, wasteRisk: 'Low', wasteRiskClass: 'low', impact: '72g wasted — 0.2 kg CO₂e', recommendation: 'Excellent! Minimal waste. Consider two tacos to save even more.' },
+    { detected: 'Salmon Fillet & Quinoa Bowl', ecoScore: 81, wasteRisk: 'Low', wasteRiskClass: 'low', impact: '85g wasted — 0.2 kg CO₂e', recommendation: 'The fruit cup had the most waste. Grab a smaller one.' }
   ];
 
   var WastePool = [
-    { detected:'Plastic Bottle', correctBin:'Recycling', binClass:'recycle', contamRisk:'Low', contamClass:'low', confidence:96, recommendation:'Rinse before disposal. Remove cap and label if possible.' },
-    { detected:'Banana Peel', correctBin:'Compost', binClass:'compost', contamRisk:'Low', contamClass:'low', confidence:98, recommendation:'Breaks down in 2–5 weeks. Great for compost.' },
-    { detected:'Dirty Napkin', correctBin:'Landfill', binClass:'landfill', contamRisk:'Medium', contamClass:'medium', confidence:91, recommendation:'Food-soiled paper can\'t be recycled. Use cloth napkins.' },
-    { detected:'Aluminum Can', correctBin:'Recycling', binClass:'recycle', contamRisk:'Low', contamClass:'low', confidence:97, recommendation:'Infinitely recyclable. Rinse before disposing.' },
-    { detected:'Styrofoam Container', correctBin:'Landfill', binClass:'landfill', contamRisk:'High', contamClass:'high', confidence:93, recommendation:'Polystyrene isn\'t recyclable in most programs. Avoid it.' },
-    { detected:'Cardboard Tray', correctBin:'Recycling', binClass:'recycle', contamRisk:'Low', contamClass:'low', confidence:94, recommendation:'Clean cardboard is recyclable. Flatten to save space.' }
+    { detected: 'Plastic Bottle', correctBin: 'Recycling', binClass: 'recycle', contamRisk: 'Low', contamClass: 'low', confidence: 96, recommendation: 'Rinse before disposal. Remove cap and label if possible.' },
+    { detected: 'Banana Peel', correctBin: 'Compost', binClass: 'compost', contamRisk: 'Low', contamClass: 'low', confidence: 98, recommendation: 'Breaks down in 2–5 weeks. Great for compost.' },
+    { detected: 'Dirty Napkin', correctBin: 'Landfill', binClass: 'landfill', contamRisk: 'Medium', contamClass: 'medium', confidence: 91, recommendation: 'Food-soiled paper can\'t be recycled. Use cloth napkins.' },
+    { detected: 'Aluminum Can', correctBin: 'Recycling', binClass: 'recycle', contamRisk: 'Low', contamClass: 'low', confidence: 97, recommendation: 'Infinitely recyclable. Rinse before disposing.' },
+    { detected: 'Styrofoam Container', correctBin: 'Landfill', binClass: 'landfill', contamRisk: 'High', contamClass: 'high', confidence: 93, recommendation: 'Polystyrene isn\'t recyclable in most programs. Avoid it.' },
+    { detected: 'Cardboard Tray', correctBin: 'Recycling', binClass: 'recycle', contamRisk: 'Low', contamClass: 'low', confidence: 94, recommendation: 'Clean cardboard is recyclable. Flatten to save space.' }
   ];
 
   var _foodIdx = 0;
@@ -123,18 +129,69 @@
      4. ASYNC AI SIMULATION
      ============================================================= */
   function fetchFoodAnalysis() {
-    return new Promise(function(resolve) {
-      var d = FoodPool[_foodIdx % FoodPool.length];
-      _foodIdx++;
-      setTimeout(function() { resolve(d); }, 1800 + Math.random() * 400);
-    });
+    var dataUrl = $('scan-preview').src;
+    var base64 = dataUrl.split(',')[1];
+    var mimeMatch = dataUrl.match(/^data:(image\/\w+);/);
+    var mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+
+    var prompt = 'You are a food waste analysis AI. Analyze this photo of a meal/plate. ' +
+      'Return ONLY valid JSON (no markdown, no code fences) with these exact fields: ' +
+      '"detected" (string — name of the dish, e.g. "Grilled Chicken & Rice"), ' +
+      '"ecoScore" (integer 0-100 — sustainability/eco score, higher = less wasteful), ' +
+      '"wasteRisk" (string — "Low", "Medium", or "High"), ' +
+      '"wasteRiskClass" (string — "low", "medium", or "high"), ' +
+      '"impact" (string — estimated waste in grams and CO2 equivalent, e.g. "124g wasted — 0.3 kg CO₂e"), ' +
+      '"recommendation" (string — one actionable tip to reduce waste for this specific meal). ' +
+      'If the image is not food, set detected to "Not a food item" with ecoScore 0 and wasteRisk "High".';
+
+    var body = {
+      contents: [{
+        parts: [
+          { text: prompt },
+          { inline_data: { mime_type: mimeType, data: base64 } }
+        ]
+      }]
+    };
+
+    return fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('Gemini API error: ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        var text = data.candidates[0].content.parts[0].text;
+        // Strip markdown code fences if present
+        text = text.replace(/```json\s*/i, '').replace(/```\s*$/i, '').trim();
+        var parsed = JSON.parse(text);
+        // Ensure required fields with defaults
+        return {
+          detected: parsed.detected || 'Unknown Item',
+          ecoScore: parseInt(parsed.ecoScore) || 50,
+          wasteRisk: parsed.wasteRisk || 'Medium',
+          wasteRiskClass: parsed.wasteRiskClass || 'medium',
+          impact: parsed.impact || 'Unable to estimate',
+          recommendation: parsed.recommendation || 'Try to minimize food waste.'
+        };
+      })
+      .catch(function (err) {
+        console.error('Gemini analysis failed:', err);
+        showToast('AI analysis failed. Please try again.');
+        // Return fallback mock data so the UI doesn't break
+        var d = FoodPool[_foodIdx % FoodPool.length];
+        _foodIdx++;
+        return d;
+      });
   }
 
   function fetchWasteClassification() {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
       var d = WastePool[_wasteIdx % WastePool.length];
       _wasteIdx++;
-      setTimeout(function() { resolve(d); }, 1500 + Math.random() * 500);
+      setTimeout(function () { resolve(d); }, 1500 + Math.random() * 500);
     });
   }
 
@@ -216,17 +273,17 @@
 
     // Step labels
     var steps = _currentMode === 'food'
-      ? ['Identifying food items…','Estimating portions…','Calculating waste impact…','Computing EcoScore…']
-      : ['Detecting material type…','Analyzing composition…','Checking bin rules…','Computing confidence…'];
+      ? ['Identifying food items…', 'Estimating portions…', 'Calculating waste impact…', 'Computing EcoScore…']
+      : ['Detecting material type…', 'Analyzing composition…', 'Checking bin rules…', 'Computing confidence…'];
     var si = 0;
     var sub = $('load-sub');
     $('load-label').textContent = _currentMode === 'food' ? 'Analyzing with Gemini Vision' : 'Classifying waste item';
     sub.textContent = steps[0];
-    _stepTimer = setInterval(function() { si++; if (si < steps.length) sub.textContent = steps[si]; }, 450);
+    _stepTimer = setInterval(function () { si++; if (si < steps.length) sub.textContent = steps[si]; }, 450);
 
     // Fetch
     var p = _currentMode === 'food' ? fetchFoodAnalysis() : fetchWasteClassification();
-    p.then(function(result) {
+    p.then(function (result) {
       // Abort check — ignore stale results
       if (myId !== _requestId) return;
       completeAnalysis(result);
@@ -249,7 +306,7 @@
       _currentMode === 'food' ? renderFood(result) : renderWaste(result);
     $('scan-results').classList.add('active');
 
-    setTimeout(function() {
+    setTimeout(function () {
       var ring = $('eco-fill');
       if (ring) ring.style.strokeDashoffset = 314 - (result.ecoScore / 100) * 314;
       var numEl = $('eco-num');
@@ -310,7 +367,7 @@
     var f = e.target.files[0];
     if (!f) return;
     var reader = new FileReader();
-    reader.onload = function(ev) {
+    reader.onload = function (ev) {
       $('scan-preview').src = ev.target.result;
       $('scan-preview').style.display = 'block';
       $('scan-upload-zone').style.display = 'none';
@@ -324,18 +381,18 @@
      ============================================================= */
   function initScrollFx() {
     if ('IntersectionObserver' in window) {
-      var obs = new IntersectionObserver(function(entries) {
-        entries.forEach(function(e) {
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
           if (e.isIntersecting) { e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)'; }
         });
       }, { threshold: 0.08 });
-      document.querySelectorAll('.section').forEach(function(s) {
+      document.querySelectorAll('.section').forEach(function (s) {
         s.style.opacity = '0'; s.style.transform = 'translateY(28px)';
         s.style.transition = 'opacity .7s ease, transform .7s ease';
         obs.observe(s);
       });
     }
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', function () {
       document.querySelector('.nav').classList.toggle('scrolled', window.scrollY > 40);
     }, { passive: true });
   }
@@ -347,19 +404,19 @@
     loadState();
 
     // Mode tabs
-    $('tab-food').addEventListener('click', function() { setMode('food'); });
-    $('tab-waste').addEventListener('click', function() { setMode('waste'); });
+    $('tab-food').addEventListener('click', function () { setMode('food'); });
+    $('tab-waste').addEventListener('click', function () { setMode('waste'); });
 
     // Hero buttons
-    $('btn-food').addEventListener('click', function(e) {
+    $('btn-food').addEventListener('click', function (e) {
       e.preventDefault();
       $('demo').scrollIntoView({ behavior: 'smooth' });
-      setTimeout(function() { setMode('food'); }, 500);
+      setTimeout(function () { setMode('food'); }, 500);
     });
-    $('btn-waste').addEventListener('click', function(e) {
+    $('btn-waste').addEventListener('click', function (e) {
       e.preventDefault();
       $('demo').scrollIntoView({ behavior: 'smooth' });
-      setTimeout(function() { setMode('waste'); }, 500);
+      setTimeout(function () { setMode('waste'); }, 500);
     });
 
     // File + Analyze
