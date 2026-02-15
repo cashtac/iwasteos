@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iWaste — AI-Powered Campus Sustainability</title>
+  <meta name="description" content="iWaste uses computer vision to scan food plates and classify waste in real-time. Reduce campus food waste with EcoScores, gamification, and data-driven insights.">
+  <meta name="keywords" content="food waste, sustainability, AI, computer vision, campus, recycling, EcoScore">
+  <meta name="author" content="iWaste">
+  <meta property="og:title" content="iWaste — AI-Powered Campus Sustainability">
+  <meta property="og:description" content="Scan your plate. Classify your trash. Score your impact.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://iwaste.daniil-osipov.com">
+  <meta name="theme-color" content="#10b981">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♻</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==================== NAVIGATION ==================== -->
+  <nav class="nav" id="nav">
+    <span class="nav-brand">iWaste</span>
+    <div class="nav-center">
+      <a href="#how">How It Works</a>
+      <a href="#demo">Demo</a>
+      <a href="#features">Features</a>
+      <a href="#impact">Impact</a>
+      <a href="#tech">Stack</a>
+    </div>
+    <button class="nav-cta" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">Try Demo</button>
+  </nav>
+
+  <!-- ==================== HERO ==================== -->
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-badge">HackFax &times; PatriotHacks 2025</span>
+      <h1><span class="grad">Sustainability,</span><br>measured.</h1>
+      <p class="hero-sub">iWaste uses computer vision to scan your plate, classify your waste, and score your environmental impact — in real time.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="btn-food">Try Food Mode</button>
+        <button class="btn btn-ghost" id="btn-waste">Try Waste Mode</button>
+      </div>
+      <div class="hero-metrics">
+        <div class="hero-metric"><div class="num">2.4M</div><div class="label">lbs wasted / yr</div></div>
+        <div class="hero-metric"><div class="num">62%</div><div class="label">contamination rate</div></div>
+        <div class="hero-metric"><div class="num">$1.2B</div><div class="label">annual cost</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== HOW IT WORKS ==================== -->
+  <div class="divider"></div>
+  <section class="section" id="how">
+    <div class="container section-centered">
+      <div class="section-eyebrow">How It Works</div>
+      <h2 class="section-title">Three steps to zero waste</h2>
+      <p class="section-sub">Point your camera, get AI-powered insights, and track your sustainability score over time.</p>
+      <div class="steps-grid">
+        <div class="step-card">
+          <span class="step-num">01</span>
+          <div class="step-icon">1</div>
+          <h3>Capture</h3>
+          <p>Snap a photo of your meal or waste item using any phone camera. No app install required.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-num">02</span>
+          <div class="step-icon">2</div>
+          <h3>Analyze</h3>
+          <p>Gemini Vision identifies food items, estimates waste, classifies materials, and determines the correct bin.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-num">03</span>
+          <div class="step-icon">3</div>
+          <h3>Improve</h3>
+          <p>Get your EcoScore, actionable tips, and streak rewards. Compete on campus leaderboards.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== LIVE DEMO ==================== -->
+  <div class="divider"></div>
+  <section class="section" id="demo">
+    <div class="container">
+      <div class="section-eyebrow">Live Demo</div>
+      <h2 class="section-title">See it for yourself</h2>
+      <p class="section-sub">Upload any food or trash photo. The AI simulation returns a real-time analysis card.</p>
+
+      <div class="demo-wrap">
+        <div class="demo-header">
+          <span class="demo-dot"></span>
+          <span class="demo-dot"></span>
+          <span class="demo-dot"></span>
+          <span class="demo-title" id="demo-title-text">Food Mode — Scan Your Plate</span>
+        </div>
+        <div class="demo-body">
+          <div class="demo-tabs">
+            <div class="demo-tab active" id="tab-food">
+              <span class="demo-tab-icon">Food</span>
+              Food Mode
+            </div>
+            <div class="demo-tab" id="tab-waste">
+              <span class="demo-tab-icon">Waste</span>
+              Waste Mode
+            </div>
+          </div>
+
+          <!-- Upload -->
+          <img class="upload-preview" id="scan-preview" alt="Preview">
+          <div class="upload-zone" id="scan-upload-zone">
+            <input type="file" accept="image/*" id="scan-file">
+            <div class="upload-icon">+</div>
+            <div class="upload-text">Tap to upload a photo</div>
+            <div class="upload-hint">JPG, PNG, HEIC — or drag and drop</div>
+          </div>
+          <button class="analyze-btn" id="scan-analyze">Analyze with AI</button>
+
+          <div class="scan-loading" id="scan-loading">
+            <div class="loading-label" id="load-label">Analyzing</div>
+            <div class="loading-sub" id="load-sub">Processing</div>
+          </div>
+
+          <!-- Results -->
+          <div class="scan-results" id="scan-results">
+            <div id="scan-result-body"></div>
+            <button class="scan-again" id="scan-again">Scan Another</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FEATURES ==================== -->
+  <div class="divider"></div>
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-eyebrow">Features</div>
+      <h2 class="section-title">Everything you need to cut waste</h2>
+      <p class="section-sub">From individual plate scans to campus-wide analytics — iWaste covers the full stack.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-tag live">Live</span>
+          <div class="feature-icon">F</div>
+          <h3>Food Waste Scanner</h3>
+          <p>Photograph your plate after eating. AI estimates what you wasted, how much CO2 that represents, and how to do better next time.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-tag live">Live</span>
+          <div class="feature-icon">W</div>
+          <h3>Waste Classifier</h3>
+          <p>Point at any trash item. AI identifies the material type and tells you the correct bin — recycling, compost, or landfill.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-tag live">Live</span>
+          <div class="feature-icon">E</div>
+          <h3>EcoScore &amp; Gamification</h3>
+          <p>Every scan earns points. Build streaks, climb leaderboards, and compete with other students for the highest sustainability score.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-tag soon">Coming Soon</span>
+          <div class="feature-icon">A</div>
+          <h3>Admin Dashboard</h3>
+          <p>UDEP-proven role-based admin panel. Real-time analytics, contamination heatmaps, and operational insights for dining managers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== IMPACT ==================== -->
+  <div class="divider"></div>
+  <section class="section" id="impact">
+    <div class="container section-centered">
+      <div class="section-eyebrow">Impact</div>
+      <h2 class="section-title">The problem is massive.<br>The solution is measurable.</h2>
+      <p class="section-sub">Food waste is the number one material in U.S. landfills. iWaste makes the invisible visible.</p>
+
+      <div class="impact-grid">
+        <div class="impact-card">
+          <div class="impact-num">40%</div>
+          <div class="impact-label">of food produced globally is wasted</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-num">8%</div>
+          <div class="impact-label">of greenhouse gases from food waste</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-num">142 lbs</div>
+          <div class="impact-label">wasted per student per year</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-num">#1</div>
+          <div class="impact-label">material in U.S. landfills is food</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CTA ==================== -->
+  <section class="section">
+    <div class="container">
+      <div class="cta-banner">
+        <h2>Ready to reduce waste on your campus?</h2>
+        <p>iWaste is open-source and built to scale. Start with the demo, deploy to your dining hall.</p>
+        <a class="btn btn-primary" href="https://github.com/cashtac/iwasteos" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TECH STACK ==================== -->
+  <div class="divider"></div>
+  <section class="section" id="tech">
+    <div class="container">
+      <div class="section-eyebrow">Architecture</div>
+      <h2 class="section-title">Built for production</h2>
+      <p class="section-sub">Modular, scalable, and deployable anywhere.</p>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <span class="tech-badge ai">AI</span>
+          <h4>Gemini Vision API</h4>
+          <p>Multi-modal food detection, portion estimation, and waste material classification with &gt;90% accuracy.</p>
+        </div>
+        <div class="tech-card">
+          <span class="tech-badge data">Data</span>
+          <h4>MongoDB Atlas</h4>
+          <p>Schemaless document store for scan history, user profiles, and real-time sustainability analytics.</p>
+        </div>
+        <div class="tech-card">
+          <span class="tech-badge infra">Deploy</span>
+          <h4>GitHub Pages</h4>
+          <p>Zero-config static hosting with custom domain, enforced HTTPS, and global edge distribution.</p>
+        </div>
+        <div class="tech-card">
+          <span class="tech-badge front">Admin</span>
+          <h4>Role-Based Dashboard</h4>
+          <p>Multi-tenant admin with role-based access, analytics, and operational controls for dining leadership.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">iWaste</div>
+          <p class="footer-desc">AI-powered sustainability assistant for campus dining. Scan your plate. Classify your waste. Score your impact.</p>
+        </div>
+        <div class="footer-col">
+          <h5>Product</h5>
+          <a href="#how">How It Works</a>
+          <a href="#demo">Live Demo</a>
+          <a href="#features">Features</a>
+        </div>
+        <div class="footer-col">
+          <h5>Project</h5>
+          <a href="https://github.com/cashtac/iwasteos" target="_blank" rel="noopener">GitHub</a>
+          <a href="#tech">Tech Stack</a>
+          <a href="#impact">Impact</a>
+        </div>
+        <div class="footer-col">
+          <h5>About</h5>
+          <a href="https://daniil-osipov.com" target="_blank" rel="noopener">Creator</a>
+          <a href="mailto:iwaste@daniil-osipov.com">Contact</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span class="footer-copy">&copy; 2026 iWaste. All rights reserved.</span>
+        <span class="footer-event">Version v0.1 &middot; HackFax &times; PatriotHacks 2026</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
