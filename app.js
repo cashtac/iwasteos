@@ -82,7 +82,7 @@
     renderOverlay();
 
     // Behavioral messages
-    if (appState.totalScans === 3) showToast('Habit forming: you're building sustainable behavior.');
+    if (appState.totalScans === 3) showToast("Habit forming: you're building sustainable behavior.");
     if (appState.totalScans === 5) {
       var pct = clamp(Math.round((appState.ecoScoreAvg - 60) * 0.8), 0, 25);
       showToast('Estimated impact reduced by ~' + pct + '%. Keep scanning!');
