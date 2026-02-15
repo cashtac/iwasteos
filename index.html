@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>iWaste — AI-Powered Campus Sustainability</title>
-  <meta name="description" content="iWasteOS turns food and waste into measurable intelligence. Scan meals, classify waste, and unlock real-time environmental scoring for campuses and restaurants.">
-  <meta name="keywords" content="food waste, sustainability, AI, computer vision, campus, recycling, EcoScore, dining hall, restaurant">
+  <meta name="description"
+    content="iWasteOS turns food and waste into measurable intelligence. Scan meals, classify waste, and unlock real-time environmental scoring for campuses and restaurants.">
+  <meta name="keywords"
+    content="food waste, sustainability, AI, computer vision, campus, recycling, EcoScore, dining hall, restaurant">
   <meta name="author" content="iWaste">
   <meta property="og:title" content="iWaste — AI-Powered Campus Sustainability">
   <meta property="og:description" content="Scan your plate. Classify your trash. Score your impact.">
@@ -15,14 +18,18 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <!-- Security Hardening -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://generativelanguage.googleapis.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
   <meta http-equiv="Referrer-Policy" content="no-referrer">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♻</text></svg>">
+  <meta http-equiv="Permissions-Policy"
+    content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()">
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♻</text></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <!-- ==================== STATUS PILL ==================== -->
@@ -40,7 +47,8 @@
       <a href="#monetize">Infrastructure</a>
       <a href="admin.html">Dashboard</a>
     </div>
-    <button class="nav-cta" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">Try Demo</button>
+    <button class="nav-cta" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">Try
+      Demo</button>
     <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -55,7 +63,8 @@
     <a href="#arch">Architecture</a>
     <a href="#monetize">Infrastructure</a>
     <a href="admin.html">Dashboard</a>
-    <button class="btn btn-primary mob-drawer-cta" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">Try Demo</button>
+    <button class="btn btn-primary mob-drawer-cta"
+      onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">Try Demo</button>
   </div>
 
   <!-- ==================== HERO ==================== -->
@@ -63,15 +72,19 @@
     <div class="hero-inner">
       <span class="hero-badge">HackFax &times; PatriotHacks 2026</span>
       <h1>Sustainability,<br>measured.</h1>
-      <p class="hero-sub">iWasteOS turns food and waste into measurable intelligence.<br>Scan meals, classify waste, and unlock real-time environmental scoring&nbsp;&mdash; built for campuses, dining halls, and restaurants.</p>
+      <p class="hero-sub">iWasteOS turns food and waste into measurable intelligence.<br>Scan meals, classify waste, and
+        unlock real-time environmental scoring&nbsp;&mdash; built for campuses, dining halls, and restaurants.</p>
       <div class="hero-actions">
         <button class="btn btn-primary" id="btn-food">Try Food Mode</button>
         <button class="btn btn-outline" id="btn-waste">Try Waste Mode</button>
       </div>
       <div class="hero-stats">
-        <div class="hero-stat"><span class="hero-stat-num">2.4M</span><span class="hero-stat-label">lbs wasted / yr</span></div>
-        <div class="hero-stat"><span class="hero-stat-num">62%</span><span class="hero-stat-label">contamination rate</span></div>
-        <div class="hero-stat"><span class="hero-stat-num">$1.2B</span><span class="hero-stat-label">annual cost</span></div>
+        <div class="hero-stat"><span class="hero-stat-num">2.4M</span><span class="hero-stat-label">lbs wasted /
+            yr</span></div>
+        <div class="hero-stat"><span class="hero-stat-num">62%</span><span class="hero-stat-label">contamination
+            rate</span></div>
+        <div class="hero-stat"><span class="hero-stat-num">$1.2B</span><span class="hero-stat-label">annual cost</span>
+        </div>
       </div>
     </div>
   </section>
@@ -91,7 +104,8 @@
         <div class="step-card">
           <span class="step-num">02</span>
           <h3>Analyze</h3>
-          <p>Gemini Vision identifies food items, estimates waste, classifies materials, and determines the correct bin.</p>
+          <p>Gemini Vision identifies food items, estimates waste, classifies materials, and determines the correct bin.
+          </p>
         </div>
         <div class="step-card">
           <span class="step-num">03</span>
@@ -163,7 +177,8 @@
     <div class="container">
       <div class="eyebrow">Use Cases</div>
       <h2 class="sec-title">Built for modern dining operations.</h2>
-      <p class="sec-sub">iWasteOS connects diners and operators in one sustainability loop. Students improve habits. Dining halls gain data. Restaurants optimize portions. Everyone reduces waste.</p>
+      <p class="sec-sub">iWasteOS connects diners and operators in one sustainability loop. Students improve habits.
+        Dining halls gain data. Restaurants optimize portions. Everyone reduces waste.</p>
 
       <div class="use-case-grid">
         <div class="use-case-card use-case-green">
@@ -211,7 +226,8 @@
     <div class="container">
       <div class="eyebrow">Intelligence</div>
       <h2 class="sec-title">Menu-Level Sustainability Insights</h2>
-      <p class="sec-sub">Every scan feeds anonymous data back to the system. iWasteOS detects which dishes generate the most leftovers and why.</p>
+      <p class="sec-sub">Every scan feeds anonymous data back to the system. iWasteOS detects which dishes generate the
+        most leftovers and why.</p>
 
       <div class="intel-columns">
         <div class="intel-card">
@@ -231,7 +247,8 @@
         </div>
       </div>
 
-      <p class="intel-note">Operators can adjust recipes, portion sizes, and sourcing decisions using real-time feedback.</p>
+      <p class="intel-note">Operators can adjust recipes, portion sizes, and sourcing decisions using real-time
+        feedback.</p>
     </div>
   </section>
 
@@ -286,22 +303,26 @@
         <div class="feature-card">
           <span class="feature-tag tag-live">Live</span>
           <h3>Food Waste Scanner</h3>
-          <p>Photograph your plate after eating. AI estimates what you wasted, how much CO₂ that represents, and how to do better next time.</p>
+          <p>Photograph your plate after eating. AI estimates what you wasted, how much CO₂ that represents, and how to
+            do better next time.</p>
         </div>
         <div class="feature-card">
           <span class="feature-tag tag-live">Live</span>
           <h3>Waste Classifier</h3>
-          <p>Point at any trash item. AI identifies the material type and tells you the correct bin — recycling, compost, or landfill.</p>
+          <p>Point at any trash item. AI identifies the material type and tells you the correct bin — recycling,
+            compost, or landfill.</p>
         </div>
         <div class="feature-card">
           <span class="feature-tag tag-live">Live</span>
           <h3>EcoScore &amp; Gamification</h3>
-          <p>Every scan earns points. Build streaks, climb leaderboards, and compete with other students for the highest sustainability score.</p>
+          <p>Every scan earns points. Build streaks, climb leaderboards, and compete with other students for the highest
+            sustainability score.</p>
         </div>
         <div class="feature-card">
           <span class="feature-tag tag-soon">Coming Soon</span>
           <h3>Admin Dashboard</h3>
-          <p>Role-based admin panel with real-time analytics, contamination heatmaps, and operational insights for dining managers.</p>
+          <p>Role-based admin panel with real-time analytics, contamination heatmaps, and operational insights for
+            dining managers.</p>
         </div>
       </div>
     </div>
@@ -341,7 +362,8 @@
       <div class="cta-banner">
         <h2>Ready to reduce waste on your campus?</h2>
         <p>iWaste is open-source and built to scale. Start with the demo, deploy to your dining hall.</p>
-        <a class="btn btn-primary" href="https://github.com/cashtac/iwasteos" target="_blank" rel="noopener">View on GitHub</a>
+        <a class="btn btn-primary" href="https://github.com/cashtac/iwasteos" target="_blank" rel="noopener">View on
+          GitHub</a>
       </div>
     </div>
   </section>
@@ -357,7 +379,8 @@
         <div class="tech-card">
           <span class="tech-badge badge-ai">AI</span>
           <h4>Gemini Vision API</h4>
-          <p>Multi-modal food detection, portion estimation, and waste material classification. Prototype accuracy; improves with data.</p>
+          <p>Multi-modal food detection, portion estimation, and waste material classification. Prototype accuracy;
+            improves with data.</p>
         </div>
         <div class="tech-card">
           <span class="tech-badge badge-data">Data</span>
@@ -397,23 +420,27 @@
     <div class="container">
       <div class="eyebrow">Scale</div>
       <h2 class="sec-title">Smart Infrastructure Layer</h2>
-      <p class="sec-sub">iWasteOS scales beyond scanning. The platform integrates with smart bins, dining systems, and institutional dashboards.</p>
+      <p class="sec-sub">iWasteOS scales beyond scanning. The platform integrates with smart bins, dining systems, and
+        institutional dashboards.</p>
 
       <div class="monetize-grid">
         <div class="monetize-card">
           <div class="monetize-icon">🗑️</div>
           <h3>Smart Eco-Bin Subscription</h3>
-          <p>AI-powered recycling bins for campuses. Monthly SaaS model with contamination detection, real-time alerts, and sustainability analytics.</p>
+          <p>AI-powered recycling bins for campuses. Monthly SaaS model with contamination detection, real-time alerts,
+            and sustainability analytics.</p>
         </div>
         <div class="monetize-card">
           <div class="monetize-icon">🏆</div>
           <h3>Waste-Performance Reward Payouts</h3>
-          <p>Rewards increase as sorting quality increases and waste decreases. Higher sustainability tiers unlock institutional benefits and credits.</p>
+          <p>Rewards increase as sorting quality increases and waste decreases. Higher sustainability tiers unlock
+            institutional benefits and credits.</p>
         </div>
         <div class="monetize-card">
           <div class="monetize-icon">📊</div>
           <h3>Multi-Location Analytics Licensing</h3>
-          <p>Aggregate anonymous data into actionable sustainability reports across campuses, enterprises, and supply chains. Data-driven ESG at scale.</p>
+          <p>Aggregate anonymous data into actionable sustainability reports across campuses, enterprises, and supply
+            chains. Data-driven ESG at scale.</p>
         </div>
       </div>
     </div>
@@ -424,7 +451,8 @@
     <div class="container">
       <div class="eyebrow">Future</div>
       <h2 class="sec-title">Ambient Sustainability Vision</h2>
-      <p class="sec-sub">Future versions integrate with wearable AR devices, enabling hands-free waste classification and real-time guidance in dining environments.</p>
+      <p class="sec-sub">Future versions integrate with wearable AR devices, enabling hands-free waste classification
+        and real-time guidance in dining environments.</p>
 
       <div class="ar-visual">
         <div class="ar-ring">
@@ -449,7 +477,8 @@
       <div class="footer-grid">
         <div class="footer-about">
           <div class="footer-brand">iWaste</div>
-          <p class="footer-desc">AI-powered sustainability assistant for campus dining. Scan your plate. Classify your waste. Score your impact.</p>
+          <p class="footer-desc">AI-powered sustainability assistant for campus dining. Scan your plate. Classify your
+            waste. Score your impact.</p>
         </div>
         <div class="footer-col">
           <h5>Product</h5>
@@ -495,27 +524,28 @@
 
   <!-- ==================== INLINE: Mobile hamburger ==================== -->
   <script>
-  (function(){
-    var b=document.getElementById('nav-burger'),
-        d=document.getElementById('mob-drawer');
-    if(!b||!d)return;
-    function toggle(){
-      var open=d.classList.toggle('open');
-      b.classList.toggle('open',open);
-      b.setAttribute('aria-expanded',open);
-      document.body.classList.toggle('drawer-open',open);
-    }
-    b.addEventListener('click',toggle);
-    d.querySelectorAll('a,button').forEach(function(el){
-      el.addEventListener('click',function(){
-        d.classList.remove('open');
-        b.classList.remove('open');
-        b.setAttribute('aria-expanded','false');
-        document.body.classList.remove('drawer-open');
+    (function () {
+      var b = document.getElementById('nav-burger'),
+        d = document.getElementById('mob-drawer');
+      if (!b || !d) return;
+      function toggle() {
+        var open = d.classList.toggle('open');
+        b.classList.toggle('open', open);
+        b.setAttribute('aria-expanded', open);
+        document.body.classList.toggle('drawer-open', open);
+      }
+      b.addEventListener('click', toggle);
+      d.querySelectorAll('a,button').forEach(function (el) {
+        el.addEventListener('click', function () {
+          d.classList.remove('open');
+          b.classList.remove('open');
+          b.setAttribute('aria-expanded', 'false');
+          document.body.classList.remove('drawer-open');
+        });
       });
-    });
-  })();
+    })();
   </script>
   <script src="app.js" defer></script>
 </body>
+
 </html>
