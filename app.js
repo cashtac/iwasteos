@@ -27,7 +27,7 @@
   /* =============================================================
      GEMINI API CONFIG
      ============================================================= */
-  var GEMINI_API_KEY = 'AIzaSyDE04Im64Pru1h8qqvlLepJ9QUc6HHJLPM';  // Replace with your key from https://aistudio.google.com/apikey
+  var GEMINI_API_KEY = 'AIzaSyApG-lYqSCBQpdi7NtfiswQ2mUoBZW3aKc';  // Replace with your key from https://aistudio.google.com/apikey
   var GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
 
   function loadState() {
