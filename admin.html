@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>iWasteOS — Operator Dashboard</title>
+  <meta name="description" content="iWasteOS operator dashboard for food waste and recycling analytics.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ── TOKENS (mirrors main site) ── */
+    :root {
+      --bg:        #0a0a0a;
+      --bg-2:      #111111;
+      --surface:   #161616;
+      --surface-2: #1c1c1e;
+      --text:      #f5f5f7;
+      --text-2:    #a1a1a6;
+      --text-3:    #6e6e73;
+      --border:    #2c2c2e;
+      --green:     #30d158;
+      --green-dim: rgba(48,209,88,.12);
+      --amber:     #ff9f0a;
+      --amber-dim: rgba(255,159,10,.10);
+      --red:       #ff453a;
+      --red-dim:   rgba(255,69,58,.10);
+      --blue:      #64a0ff;
+      --blue-dim:  rgba(100,160,255,.10);
+      --radius:    16px;
+      --radius-sm: 12px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+              'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --ease: cubic-bezier(.25,.46,.45,.94);
+      color-scheme: dark;
+    }
+
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+    }
+
+    /* ── LAYOUT ── */
+    .dash-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
+
+    /* ── TOP NAV ── */
+    .dash-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: rgba(10,10,10,.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .dash-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .dash-back {
+      font-size: 14px;
+      color: var(--text-3);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .dash-back:hover { color: var(--text); }
+    .dash-logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    .dash-logo span { color: var(--green); }
+    .dash-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--text-3);
+      background: var(--surface-2);
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+
+    /* ── SCENARIO TOGGLE ── */
+    .scenario-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 0 8px;
+      flex-wrap: wrap;
+    }
+    .scenario-label {
+      font-size: 13px;
+      color: var(--text-3);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .scenario-toggle {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .scenario-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-3);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all .25s var(--ease);
+      font-family: var(--font);
+      white-space: nowrap;
+    }
+    .scenario-btn.active {
+      color: var(--text);
+      background: var(--surface-2);
+    }
+    .scenario-btn:hover:not(.active) { color: var(--text-2); }
+
+    /* ── SECTION ── */
+    .dash-section {
+      margin-top: 32px;
+    }
+    .dash-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .dash-section-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .dash-section-sub {
+      font-size: 13px;
+      color: var(--text-3);
+    }
+
+    /* ── KPI GRID ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color .25s var(--ease);
+    }
+    .kpi-card:hover { border-color: var(--text-3); }
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+    .kpi-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 6px;
+      padding: 2px 8px;
+      border-radius: 100px;
+    }
+    .kpi-delta.up { color: var(--green); background: var(--green-dim); }
+    .kpi-delta.down { color: var(--red); background: var(--red-dim); }
+    .kpi-delta.neutral { color: var(--amber); background: var(--amber-dim); }
+
+    /* ── TABLE ── */
+    .dash-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .dash-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .dash-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .dash-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-2);
+      white-space: nowrap;
+    }
+    .dash-table tbody tr {
+      transition: background .15s;
+    }
+    .dash-table tbody tr:hover {
+      background: var(--surface);
+    }
+
+    /* ── TAGS ── */
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .tag-green  { color: var(--green); background: var(--green-dim); }
+    .tag-amber  { color: var(--amber); background: var(--amber-dim); }
+    .tag-red    { color: var(--red);   background: var(--red-dim); }
+    .tag-blue   { color: var(--blue);  background: var(--blue-dim); }
+    .tag-ghost  { color: var(--text-3); background: var(--surface-2); }
+
+    /* ── BARS (simple charts) ── */
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .bar-label {
+      font-size: 13px;
+      color: var(--text-2);
+      min-width: 120px;
+      flex-shrink: 0;
+    }
+    .bar-track {
+      flex: 1;
+      height: 8px;
+      background: var(--surface-2);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      transition: width .6s var(--ease);
+    }
+    .bar-fill-green { background: var(--green); }
+    .bar-fill-amber { background: var(--amber); }
+    .bar-fill-red   { background: var(--red); }
+    .bar-fill-blue  { background: var(--blue); }
+    .bar-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    /* ── CARDS (hotspots, issues, actions) ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .dash-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      transition: border-color .2s var(--ease);
+    }
+    .dash-card:hover { border-color: var(--text-3); }
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.5;
+    }
+
+    /* ── TIER DISTRIBUTION ── */
+    .tier-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+    }
+    .tier-name {
+      font-size: 13px;
+      color: var(--text-2);
+      min-width: 120px;
+    }
+    .tier-bar-outer {
+      flex: 1;
+      height: 20px;
+      background: var(--surface-2);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      position: relative;
+    }
+    .tier-bar-inner {
+      height: 100%;
+      border-radius: var(--radius-sm);
+      transition: width .6s var(--ease);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--bg);
+      min-width: 36px;
+    }
+
+    /* ── EXPORT BAR ── */
+    .export-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all .2s var(--ease);
+      font-family: var(--font);
+    }
+    .export-btn:hover {
+      border-color: var(--text-3);
+      background: var(--surface-2);
+    }
+    .export-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* ── DISCLAIMER ── */
+    .dash-disclaimer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 48px;
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── TOAST ── */
+    .dash-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface-2);
+      color: var(--text);
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all .3s var(--ease);
+      z-index: 200;
+      pointer-events: none;
+      border: 1px solid var(--border);
+    }
+    .dash-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── PULSE DOT ── */
+    .pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      margin-right: 6px;
+      animation: pulse-anim 2s infinite;
+    }
+    @keyframes pulse-anim {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (min-width: 600px) {
+      .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 900px) {
+      .card-grid { grid-template-columns: repeat(3, 1fr); }
+      .dash-wrap { padding: 0 32px 80px; }
+    }
+    @media (max-width: 480px) {
+      .kpi-value { font-size: 24px; }
+      .bar-label { min-width: 80px; font-size: 12px; }
+      .dash-table { font-size: 12px; }
+      .scenario-btn { padding: 8px 14px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ TOP NAV ═══════════ -->
+  <nav class="dash-nav">
+    <div class="dash-nav-left">
+      <a href="index.html" class="dash-back">← Back to iWasteOS</a>
+      <span class="dash-logo">i<span>Waste</span>OS</span>
+    </div>
+    <span class="dash-badge">Operator Dashboard</span>
+  </nav>
+
+  <div class="dash-wrap">
+
+    <!-- ═══════════ SCENARIO TOGGLE ═══════════ -->
+    <div class="scenario-bar">
+      <span class="scenario-label">Demo Mode</span>
+      <div class="scenario-toggle" id="scenario-toggle">
+        <button class="scenario-btn active" data-scenario="campus">🏫 Campus Dining Hall</button>
+        <button class="scenario-btn" data-scenario="restaurant">🍽️ Restaurant</button>
+      </div>
+    </div>
+
+    <!-- ═══════════ 1. OVERVIEW KPIs ═══════════ -->
+    <section class="dash-section" id="sec-overview">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Overview</h2>
+        <span class="dash-section-sub" id="overview-period">Last 7 days</span>
+      </div>
+      <div class="kpi-grid" id="kpi-grid"></div>
+    </section>
+
+    <!-- ═══════════ 2. LIVE FEED ═══════════ -->
+    <section class="dash-section" id="sec-feed">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title"><span class="pulse-dot"></span>Live Feed</h2>
+        <span class="dash-section-sub">Recent scans</span>
+      </div>
+      <div class="dash-table-wrap">
+        <table class="dash-table" id="feed-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Mode</th>
+              <th>Classification</th>
+              <th>Confidence</th>
+              <th>Bin / Risk</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody id="feed-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════ 3. WASTE HOTSPOTS ═══════════ -->
+    <section class="dash-section" id="sec-hotspots">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Waste Hotspots</h2>
+        <span class="dash-section-sub">Locations ranked by risk</span>
+      </div>
+      <div class="card-grid" id="hotspot-grid"></div>
+    </section>
+
+    <!-- ═══════════ 4. TOP ISSUES ═══════════ -->
+    <section class="dash-section" id="sec-issues">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Top Issues</h2>
+        <span class="dash-section-sub">Flagged this week</span>
+      </div>
+      <div class="card-grid" id="issues-grid"></div>
+    </section>
+
+    <!-- ═══════════ 5. USER ENGAGEMENT ═══════════ -->
+    <section class="dash-section" id="sec-engagement">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">User Engagement</h2>
+        <span class="dash-section-sub">Activity & tier distribution</span>
+      </div>
+      <div class="kpi-grid" id="engagement-kpis" style="margin-bottom: 20px;"></div>
+      <h3 style="font-size:14px;font-weight:600;color:var(--text-2);margin-bottom:12px;">Eco-Tier Distribution</h3>
+      <div id="tier-distribution"></div>
+    </section>
+
+    <!-- ═══════════ 6. OPERATOR ACTIONS ═══════════ -->
+    <section class="dash-section" id="sec-actions">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Suggested Actions</h2>
+        <span class="dash-section-sub">Automated recommendations</span>
+      </div>
+      <div class="card-grid" id="actions-grid"></div>
+    </section>
+
+    <!-- ═══════════ 7. EXPORT / REPORTS ═══════════ -->
+    <section class="dash-section" id="sec-export">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Export &amp; Reports</h2>
+      </div>
+      <div class="export-bar">
+        <button class="export-btn" onclick="showToast('CSV export simulated — demo mode')">📄 Export CSV</button>
+        <button class="export-btn" onclick="showToast('PDF report simulated — demo mode')">📊 Export PDF Report</button>
+        <button class="export-btn" onclick="showToast('Weekly digest simulated — demo mode')">📧 Email Weekly Digest</button>
+      </div>
+    </section>
+
+    <!-- ═══════════ DISCLAIMER ═══════════ -->
+    <div class="dash-disclaimer">
+      Demo · Static prototype · Data simulated for hackathon
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="dash-toast" id="dash-toast"></div>
+
+  <script>
+  (function() {
+    'use strict';
+
+    /* ══════════════════════════════════════════
+       MOCK DATA — TWO SCENARIOS
+       ══════════════════════════════════════════ */
+
+    var DATA = {
+      campus: {
+        label: 'Mason Campus Dining Hall',
+        kpis: [
+          { label: 'Total Scans',        value: '3,847',  delta: '+18%', dir: 'up' },
+          { label: 'Food Waste Reduced',  value: '−22%',   delta: 'vs last month', dir: 'up' },
+          { label: 'Contamination Rate',  value: '14.3%',  delta: '−4.1%', dir: 'up' },
+          { label: 'Avg Eco Score',       value: '67',     delta: '+5 pts', dir: 'up' },
+          { label: 'Active Users',        value: '812',    delta: '+11%', dir: 'up' },
+          { label: 'Bins Monitored',      value: '24',     delta: 'stable', dir: 'neutral' },
+          { label: 'CO₂e Saved',          value: '1.2t',   delta: '+0.3t', dir: 'up' },
+          { label: 'Peak Hour',           value: '12:15p',  delta: 'lunch rush', dir: 'neutral' }
+        ],
+        feed: [
+          { time: '2 min ago',  mode: 'Food',  item: 'Chicken Stir-fry & Rice',    conf: 94, bin: 'Eco: 62/100',       impact: '120g waste · 0.4 kg CO₂e' },
+          { time: '5 min ago',  mode: 'Waste',  item: 'Plastic Water Bottle',       conf: 96, bin: 'Recycling',         impact: 'Correct sort' },
+          { time: '7 min ago',  mode: 'Waste',  item: 'Waxed Paper Coffee Cup',     conf: 91, bin: 'Landfill ⚠️',       impact: 'Contamination risk' },
+          { time: '11 min ago', mode: 'Food',  item: 'Burger & French Fries',       conf: 89, bin: 'Eco: 45/100',       impact: '145g waste · 0.5 kg CO₂e' },
+          { time: '14 min ago', mode: 'Waste',  item: 'Styrofoam Container',        conf: 93, bin: 'Landfill',          impact: 'Non-recyclable' },
+          { time: '18 min ago', mode: 'Waste',  item: 'Banana Peel',                conf: 99, bin: 'Compost ✓',         impact: 'Correct sort' },
+          { time: '23 min ago', mode: 'Food',  item: 'Pasta Alfredo with Salad',    conf: 87, bin: 'Eco: 58/100',       impact: '100g waste · 0.3 kg CO₂e' },
+          { time: '29 min ago', mode: 'Waste',  item: 'Aluminum Can',               conf: 98, bin: 'Recycling ✓',       impact: 'Correct sort' }
+        ],
+        hotspots: [
+          { name: 'Southside Dining Hall', location: 'Building A, Floor 1', risk: 'High',   detail: '38% contamination — compost bins receiving plastics' },
+          { name: 'Ike\'s Café',           location: 'Student Center',      risk: 'Medium', detail: '21% contamination — coffee cups in recycling' },
+          { name: 'North Tower Lobby',     location: 'Bin Cluster #7',      risk: 'Medium', detail: '19% contamination — food waste in landfill stream' },
+          { name: 'Library Commons',       location: 'Ground Floor',        risk: 'Low',    detail: '8% contamination — mostly compliant' }
+        ],
+        issues: [
+          { title: 'Compost contamination spike',   severity: 'red',   desc: 'Plastics detected in compost bins at Southside — up 12% this week. Signage update recommended.' },
+          { title: 'Plate waste above target',       severity: 'amber', desc: 'Average plate waste is 132g vs 100g target. Stir-fry and fries are the top contributors.' },
+          { title: 'Coffee cup mis-sorting',         severity: 'amber', desc: '23% of waxed paper cups are placed in recycling. Users may not know they\'re non-recyclable.' },
+          { title: 'Off-peak scan drop',             severity: 'blue',  desc: 'Scan volume drops 74% after 2pm. Consider gamification incentives for dinner hours.' }
+        ],
+        engagement: {
+          kpis: [
+            { label: 'DAU',            value: '284',   delta: '+9%', dir: 'up' },
+            { label: 'Weekly Scans',   value: '3,847', delta: '+18%', dir: 'up' },
+            { label: 'Avg Streak',     value: '4.2d',  delta: '+0.8d', dir: 'up' },
+            { label: 'Retention (7d)', value: '61%',   delta: '+3%', dir: 'up' }
+          ],
+          tiers: [
+            { name: 'Beginner',         pct: 42, color: 'var(--text-3)' },
+            { name: 'Conscious',        pct: 31, color: 'var(--amber)' },
+            { name: 'Optimizer',        pct: 19, color: 'var(--green)' },
+            { name: 'Sustainable Pro',  pct: 8,  color: 'var(--blue)' }
+          ]
+        },
+        actions: [
+          { title: '🪧 Update compost signage',            priority: 'red',   desc: 'Add visual "No Plastics" labels to compost bins at Southside. Contamination rate suggests current signage is ineffective.' },
+          { title: '🍟 Reduce fry portion size',            priority: 'amber', desc: 'French fries account for 34% of plate waste. Recommend reducing default portion by 20% and offering an upgrade option.' },
+          { title: '☕ Launch reusable mug campaign',       priority: 'amber', desc: 'Wax-coated cups are the #1 mis-sorted item. Incentivize reusable mugs with +5 eco points per use.' },
+          { title: '🎮 Activate dinner scan challenge',     priority: 'blue',  desc: 'Evening scan volume is 74% lower than lunch. Deploy a "Dinner Streak" challenge with 2x point multiplier for 5–8pm scans.' },
+          { title: '📊 Share weekly impact report',         priority: 'green', desc: 'Send this week\'s aggregated waste reduction data to campus sustainability office for ESG reporting.' }
+        ]
+      },
+
+      restaurant: {
+        label: 'Green Table Restaurant',
+        kpis: [
+          { label: 'Total Scans',        value: '1,124',  delta: '+8%', dir: 'up' },
+          { label: 'Food Waste Reduced',  value: '−31%',   delta: 'vs last month', dir: 'up' },
+          { label: 'Contamination Rate',  value: '6.7%',   delta: '−2.3%', dir: 'up' },
+          { label: 'Avg Eco Score',       value: '74',     delta: '+8 pts', dir: 'up' },
+          { label: 'Covers Tracked',      value: '648',    delta: '+5%', dir: 'up' },
+          { label: 'Menu Items Flagged',  value: '4',      delta: '−1', dir: 'up' },
+          { label: 'CO₂e Saved',          value: '0.6t',   delta: '+0.2t', dir: 'up' },
+          { label: 'Peak Hour',           value: '7:30p',   delta: 'dinner service', dir: 'neutral' }
+        ],
+        feed: [
+          { time: '1 min ago',  mode: 'Food',  item: 'Salmon Fillet & Quinoa Bowl',  conf: 92, bin: 'Eco: 81/100',       impact: '85g waste · 0.2 kg CO₂e' },
+          { time: '4 min ago',  mode: 'Food',  item: 'Truffle Risotto',              conf: 88, bin: 'Eco: 49/100',       impact: '160g waste · 0.6 kg CO₂e' },
+          { time: '8 min ago',  mode: 'Waste',  item: 'Wine Bottle (Glass)',          conf: 97, bin: 'Recycling ✓',       impact: 'Correct sort' },
+          { time: '12 min ago', mode: 'Food',  item: 'Caesar Salad (large)',          conf: 85, bin: 'Eco: 42/100',       impact: '180g waste · 0.3 kg CO₂e' },
+          { time: '15 min ago', mode: 'Waste',  item: 'Cloth Napkin (soiled)',        conf: 78, bin: 'Laundry ✓',         impact: 'Reusable' },
+          { time: '19 min ago', mode: 'Food',  item: 'Grilled Chicken Plate',        conf: 91, bin: 'Eco: 72/100',       impact: '95g waste · 0.3 kg CO₂e' },
+          { time: '24 min ago', mode: 'Waste',  item: 'Cardboard Pizza Box',          conf: 85, bin: 'Partial Recycle ⚠️', impact: 'Grease contamination' },
+          { time: '30 min ago', mode: 'Food',  item: 'Pasta Primavera',              conf: 90, bin: 'Eco: 68/100',       impact: '110g waste · 0.4 kg CO₂e' }
+        ],
+        hotspots: [
+          { name: 'Kitchen Prep Station',  location: 'Back of House',    risk: 'High',   detail: '28% of vegetable prep becomes waste — trim technique training needed' },
+          { name: 'Main Dining Room',      location: 'Front of House',   risk: 'Medium', detail: '15% plate return rate with >100g leftover — large portions a factor' },
+          { name: 'Bar Area',              location: 'Front of House',   risk: 'Low',    detail: '6% waste — garnish and citrus peel primarily' },
+          { name: 'Takeout Counter',       location: 'Front of House',   risk: 'Medium', detail: '18% packaging waste — switching to compostable containers recommended' }
+        ],
+        issues: [
+          { title: 'Risotto waste rate: 41%',           severity: 'red',   desc: 'Truffle Risotto consistently returns with 40%+ uneaten. Portion is likely too large for the price point.' },
+          { title: 'Caesar salad over-portioning',       severity: 'red',   desc: 'Large Caesar returns with 45% waste. Consider offering a half-portion option at lunch.' },
+          { title: 'Prep waste above benchmark',         severity: 'amber', desc: 'Vegetable prep waste is 28% vs industry benchmark of 15%. Knife skills training recommended.' },
+          { title: 'Takeout packaging not compostable',  severity: 'amber', desc: 'Current containers are #6 plastic. Switch to sugarcane clamshells for composting compatibility.' }
+        ],
+        engagement: {
+          kpis: [
+            { label: 'Staff Scans',    value: '89',    delta: '+14%', dir: 'up' },
+            { label: 'Guest Scans',    value: '1,035', delta: '+7%', dir: 'up' },
+            { label: 'Avg Streak',     value: '2.8d',  delta: '+0.5d', dir: 'up' },
+            { label: 'Repeat Guests',  value: '34%',   delta: '+6%', dir: 'up' }
+          ],
+          tiers: [
+            { name: 'Beginner',         pct: 55, color: 'var(--text-3)' },
+            { name: 'Conscious',        pct: 28, color: 'var(--amber)' },
+            { name: 'Optimizer',        pct: 13, color: 'var(--green)' },
+            { name: 'Sustainable Pro',  pct: 4,  color: 'var(--blue)' }
+          ]
+        },
+        actions: [
+          { title: '🍚 Reduce Risotto portion',             priority: 'red',   desc: 'Cut default portion by 25% and offer a "grande" upgrade. Current 41% waste rate is unsustainable and costly.' },
+          { title: '🥗 Add half-Caesar lunch option',        priority: 'red',   desc: 'Introduce a half-size Caesar at lunch to reduce the 45% waste rate. Expected savings: ~$180/week in food cost.' },
+          { title: '🔪 Schedule prep skills training',       priority: 'amber', desc: 'Vegetable prep waste is nearly 2x industry average. A 2-hour knife skills session could cut trim waste by 40%.' },
+          { title: '📦 Switch takeout to compostable',       priority: 'amber', desc: 'Replace #6 plastic containers with sugarcane clamshells. Cost increase: ~$0.08/unit. Eliminates packaging sorting confusion.' },
+          { title: '📈 Run "Clean Plate" guest promotion',   priority: 'green', desc: 'Offer 10% off next visit for guests who scan a plate with <50g waste. Drives repeat visits and reduces waste.' }
+        ]
+      }
+    };
+
+    /* ══════════════════════════════════════════
+       RENDER FUNCTIONS
+       ══════════════════════════════════════════ */
+
+    function renderKPIs(kpis, containerId) {
+      var el = document.getElementById(containerId);
+      el.innerHTML = kpis.map(function(k) {
+        return '<div class="kpi-card">' +
+          '<div class="kpi-label">' + k.label + '</div>' +
+          '<div class="kpi-value">' + k.value + '</div>' +
+          '<span class="kpi-delta ' + k.dir + '">' +
+            (k.dir === 'up' ? '↑' : k.dir === 'down' ? '↓' : '~') + ' ' + k.delta +
+          '</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderFeed(feed) {
+      var el = document.getElementById('feed-body');
+      el.innerHTML = feed.map(function(f) {
+        var modeTag = f.mode === 'Food'
+          ? '<span class="tag tag-green">🍽️ Food</span>'
+          : '<span class="tag tag-blue">♻️ Waste</span>';
+        var confClass = f.conf >= 90 ? 'tag-green' : f.conf >= 80 ? 'tag-amber' : 'tag-red';
+        return '<tr>' +
+          '<td>' + f.time + '</td>' +
+          '<td>' + modeTag + '</td>' +
+          '<td style="color:var(--text)">' + f.item + '</td>' +
+          '<td><span class="tag ' + confClass + '">' + f.conf + '%</span></td>' +
+          '<td>' + f.bin + '</td>' +
+          '<td>' + f.impact + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function renderHotspots(spots) {
+      var el = document.getElementById('hotspot-grid');
+      el.innerHTML = spots.map(function(s) {
+        var riskClass = s.risk === 'High' ? 'tag-red' : s.risk === 'Medium' ? 'tag-amber' : 'tag-green';
+        return '<div class="dash-card">' +
+          '<div class="card-top">' +
+            '<span class="card-title">' + s.name + '</span>' +
+            '<span class="tag ' + riskClass + '">' + s.risk + ' Risk</span>' +
+          '</div>' +
+          '<div class="card-desc" style="color:var(--text-3);font-size:12px;margin-bottom:4px;">' + s.location + '</div>' +
+          '<div class="card-desc">' + s.detail + '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderIssues(issues) {
+      var el = document.getElementById('issues-grid');
+      el.innerHTML = issues.map(function(i) {
+        var sevClass = 'tag-' + i.severity;
+        var sevLabel = i.severity === 'red' ? 'Critical' : i.severity === 'amber' ? 'Warning' : 'Info';
+        return '<div class="dash-card">' +
+          '<div class="card-top">' +
+            '<span class="card-title">' + i.title + '</span>' +
+            '<span class="tag ' + sevClass + '">' + sevLabel + '</span>' +
+          '</div>' +
+          '<div class="card-desc">' + i.desc + '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderEngagement(eng) {
+      renderKPIs(eng.kpis, 'engagement-kpis');
+      var el = document.getElementById('tier-distribution');
+      el.innerHTML = eng.tiers.map(function(t) {
+        return '<div class="tier-row">' +
+          '<span class="tier-name">' + t.name + '</span>' +
+          '<div class="tier-bar-outer">' +
+            '<div class="tier-bar-inner" style="width:' + t.pct + '%;background:' + t.color + ';">' + t.pct + '%</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderActions(actions) {
+      var el = document.getElementById('actions-grid');
+      el.innerHTML = actions.map(function(a) {
+        var prioClass = 'tag-' + a.priority;
+        var prioLabel = a.priority === 'red' ? 'Urgent' : a.priority === 'amber' ? 'Recommended' : a.priority === 'green' ? 'Optional' : 'Info';
+        return '<div class="dash-card">' +
+          '<div class="card-top">' +
+            '<span class="card-title">' + a.title + '</span>' +
+            '<span class="tag ' + prioClass + '">' + prioLabel + '</span>' +
+          '</div>' +
+          '<div class="card-desc">' + a.desc + '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    /* ══════════════════════════════════════════
+       SCENARIO SWITCHING
+       ══════════════════════════════════════════ */
+
+    var currentScenario = 'campus';
+
+    function renderAll(scenario) {
+      var d = DATA[scenario];
+      renderKPIs(d.kpis, 'kpi-grid');
+      renderFeed(d.feed);
+      renderHotspots(d.hotspots);
+      renderIssues(d.issues);
+      renderEngagement(d.engagement);
+      renderActions(d.actions);
+    }
+
+    function initToggle() {
+      var toggle = document.getElementById('scenario-toggle');
+      var btns = toggle.querySelectorAll('.scenario-btn');
+      btns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          btns.forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentScenario = btn.getAttribute('data-scenario');
+          renderAll(currentScenario);
+        });
+      });
+    }
+
+    /* ══════════════════════════════════════════
+       TOAST
+       ══════════════════════════════════════════ */
+
+    var toastTimer = null;
+    window.showToast = function(msg) {
+      var t = document.getElementById('dash-toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2500);
+    };
+
+    /* ══════════════════════════════════════════
+       INIT
+       ══════════════════════════════════════════ */
+
+    document.addEventListener('DOMContentLoaded', function() {
+      initToggle();
+      renderAll(currentScenario);
+    });
+
+  })();
+  </script>
+
+</body>
+</html>
