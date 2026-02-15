@@ -11,7 +11,7 @@
   <meta property="og:description" content="Scan your plate. Classify your trash. Score your impact.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iwaste.daniil-osipov.com">
-  <meta name="theme-color" content="#10b981">
+  <meta name="theme-color" content="#fafafa">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♻</text></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -105,25 +105,30 @@
             </div>
           </div>
 
-          <!-- Upload -->
-          <img class="upload-preview" id="scan-preview" alt="Preview">
-          <div class="upload-zone" id="scan-upload-zone">
-            <input type="file" accept="image/*" id="scan-file">
-            <div class="upload-icon">+</div>
-            <div class="upload-text">Tap to upload a photo</div>
-            <div class="upload-hint">JPG, PNG, HEIC — or drag and drop</div>
-          </div>
-          <button class="analyze-btn" id="scan-analyze">Analyze with AI</button>
+          <div class="demo-split">
+            <!-- Left: Upload / Preview -->
+            <div class="demo-left">
+              <img class="upload-preview" id="scan-preview" alt="Preview">
+              <div class="upload-zone" id="scan-upload-zone">
+                <input type="file" accept="image/*" id="scan-file">
+                <div class="upload-icon">+</div>
+                <div class="upload-text">Tap to upload a photo</div>
+                <div class="upload-hint">JPG, PNG, HEIC — or drag and drop</div>
+              </div>
+              <button class="analyze-btn" id="scan-analyze">Analyze with AI</button>
+            </div>
 
-          <div class="scan-loading" id="scan-loading">
-            <div class="loading-label" id="load-label">Analyzing</div>
-            <div class="loading-sub" id="load-sub">Processing</div>
-          </div>
-
-          <!-- Results -->
-          <div class="scan-results" id="scan-results">
-            <div id="scan-result-body"></div>
-            <button class="scan-again" id="scan-again">Scan Another</button>
+            <!-- Right: Loading / Results -->
+            <div class="demo-right">
+              <div class="scan-loading" id="scan-loading">
+                <div class="loading-label" id="load-label">Analyzing</div>
+                <div class="loading-sub" id="load-sub">Processing</div>
+              </div>
+              <div class="scan-results" id="scan-results">
+                <div id="scan-result-body"></div>
+                <button class="scan-again" id="scan-again">Scan Another</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -268,10 +273,26 @@
       </div>
       <div class="footer-bottom">
         <span class="footer-copy">&copy; 2026 iWaste. All rights reserved.</span>
-        <span class="footer-event">Version v0.1 &middot; HackFax &times; PatriotHacks 2026</span>
+        <span class="footer-event">Version v0.2 &middot; HackFax &times; PatriotHacks 2026</span>
       </div>
     </div>
   </footer>
+
+  <!-- ==================== FLOATING UI ==================== -->
+  <div class="stats-overlay" id="stats-overlay">
+    <div class="stats-item">
+      <span class="stats-label">Scans</span>
+      <span class="stats-value" id="stats-scans">0</span>
+    </div>
+    <div class="stats-item">
+      <span class="stats-label">EcoScore</span>
+      <span class="stats-value" id="stats-eco">—</span>
+    </div>
+    <div class="stats-item">
+      <span class="stats-tier" id="stats-tier">Beginner</span>
+    </div>
+  </div>
+  <div class="iwaste-toast" id="iwaste-toast"></div>
 
   <script src="app.js"></script>
 </body>
