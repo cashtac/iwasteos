@@ -17,6 +17,9 @@
 </head>
 <body>
 
+  <!-- ==================== STATUS PILL ==================== -->
+  <div class="status-pill">Demo &bull; Static prototype</div>
+
   <!-- ==================== NAVIGATION ==================== -->
   <nav class="nav" id="nav">
     <span class="nav-brand">iWaste</span>
@@ -34,7 +37,7 @@
   <section class="hero">
     <div class="hero-inner">
       <span class="hero-badge">HackFax &times; PatriotHacks 2025</span>
-      <h1><span class="grad">Sustainability,</span><br>measured.</h1>
+      <h1>Sustainability,<br>measured.</h1>
       <p class="hero-sub">iWaste uses computer vision to scan your plate, classify your waste, and score your environmental impact — in real time.</p>
       <div class="hero-actions">
         <button class="btn btn-primary" id="btn-food">Try Food Mode</button>
@@ -49,7 +52,6 @@
   </section>
 
   <!-- ==================== HOW IT WORKS ==================== -->
-  <div class="divider"></div>
   <section class="section" id="how">
     <div class="container section-centered">
       <div class="section-eyebrow">How It Works</div>
@@ -58,19 +60,16 @@
       <div class="steps-grid">
         <div class="step-card">
           <span class="step-num">01</span>
-          <div class="step-icon">1</div>
           <h3>Capture</h3>
           <p>Snap a photo of your meal or waste item using any phone camera. No app install required.</p>
         </div>
         <div class="step-card">
           <span class="step-num">02</span>
-          <div class="step-icon">2</div>
           <h3>Analyze</h3>
           <p>Gemini Vision identifies food items, estimates waste, classifies materials, and determines the correct bin.</p>
         </div>
         <div class="step-card">
           <span class="step-num">03</span>
-          <div class="step-icon">3</div>
           <h3>Improve</h3>
           <p>Get your EcoScore, actionable tips, and streak rewards. Compete on campus leaderboards.</p>
         </div>
@@ -79,8 +78,7 @@
   </section>
 
   <!-- ==================== LIVE DEMO ==================== -->
-  <div class="divider"></div>
-  <section class="section" id="demo">
+  <section id="demo" class="section demo-section">
     <div class="container">
       <div class="section-eyebrow">Live Demo</div>
       <h2 class="section-title">See it for yourself</h2>
@@ -96,11 +94,11 @@
         <div class="demo-body">
           <div class="demo-tabs">
             <div class="demo-tab active" id="tab-food">
-              <span class="demo-tab-icon">Food</span>
+              <span class="demo-tab-icon">🍽</span>
               Food Mode
             </div>
             <div class="demo-tab" id="tab-waste">
-              <span class="demo-tab-icon">Waste</span>
+              <span class="demo-tab-icon">♻️</span>
               Waste Mode
             </div>
           </div>
@@ -136,7 +134,6 @@
   </section>
 
   <!-- ==================== FEATURES ==================== -->
-  <div class="divider"></div>
   <section class="section" id="features">
     <div class="container">
       <div class="section-eyebrow">Features</div>
@@ -146,25 +143,21 @@
       <div class="features-grid">
         <div class="feature-card">
           <span class="feature-tag live">Live</span>
-          <div class="feature-icon">F</div>
           <h3>Food Waste Scanner</h3>
-          <p>Photograph your plate after eating. AI estimates what you wasted, how much CO2 that represents, and how to do better next time.</p>
+          <p>Photograph your plate after eating. AI estimates what you wasted, how much CO₂ that represents, and how to do better next time.</p>
         </div>
         <div class="feature-card">
           <span class="feature-tag live">Live</span>
-          <div class="feature-icon">W</div>
           <h3>Waste Classifier</h3>
           <p>Point at any trash item. AI identifies the material type and tells you the correct bin — recycling, compost, or landfill.</p>
         </div>
         <div class="feature-card">
           <span class="feature-tag live">Live</span>
-          <div class="feature-icon">E</div>
           <h3>EcoScore &amp; Gamification</h3>
           <p>Every scan earns points. Build streaks, climb leaderboards, and compete with other students for the highest sustainability score.</p>
         </div>
         <div class="feature-card">
           <span class="feature-tag soon">Coming Soon</span>
-          <div class="feature-icon">A</div>
           <h3>Admin Dashboard</h3>
           <p>UDEP-proven role-based admin panel. Real-time analytics, contamination heatmaps, and operational insights for dining managers.</p>
         </div>
@@ -173,7 +166,6 @@
   </section>
 
   <!-- ==================== IMPACT ==================== -->
-  <div class="divider"></div>
   <section class="section" id="impact">
     <div class="container section-centered">
       <div class="section-eyebrow">Impact</div>
@@ -213,7 +205,6 @@
   </section>
 
   <!-- ==================== TECH STACK ==================== -->
-  <div class="divider"></div>
   <section class="section" id="tech">
     <div class="container">
       <div class="section-eyebrow">Architecture</div>
@@ -240,6 +231,38 @@
           <span class="tech-badge front">Admin</span>
           <h4>Role-Based Dashboard</h4>
           <p>Multi-tenant admin with role-based access, analytics, and operational controls for dining leadership.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FUTURE MONETIZATION ==================== -->
+  <section class="section monetize-section" id="monetize">
+    <div class="container section-centered">
+      <div class="section-eyebrow">Sustainability at Scale</div>
+      <h2 class="section-title">Future Monetization Layer</h2>
+      <p class="section-sub">Designed for scalable sustainability infrastructure — subscription hardware, sorting rewards, and institutional data.</p>
+
+      <div class="monetize-grid">
+        <div class="monetize-card">
+          <div class="monetize-icon">🗑️</div>
+          <h3>EcoBin Subscription</h3>
+          <p>Smart AI-powered recycling bins for homes, campuses, and restaurants. Monthly SaaS model with real-time sustainability analytics.</p>
+        </div>
+        <div class="monetize-card">
+          <div class="monetize-icon">🏆</div>
+          <h3>Earn-by-Sorting Rewards</h3>
+          <p>Users earn eco credits based on sorting accuracy and food waste reduction. Higher sustainability tiers unlock benefits and cashback rewards.</p>
+        </div>
+        <div class="monetize-card">
+          <div class="monetize-icon">📊</div>
+          <h3>ESG &amp; Institutional Analytics</h3>
+          <p>Aggregate anonymous data into actionable ESG reports for campuses and enterprises.</p>
+        </div>
+        <div class="monetize-card">
+          <div class="monetize-icon">🏫</div>
+          <h3>Campus &amp; Restaurant Deployment</h3>
+          <p>Hardware + Software integration for dining halls, smart cities, and corporate environments.</p>
         </div>
       </div>
     </div>
